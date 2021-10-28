@@ -1,6 +1,6 @@
-package com.mindata.es.superheroeschallenge.controllers;
+package com.mindata.es.superheroeschallenge.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
+
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ExtendWith(SpringExtension.class)
 public class SuperHeroesIntegrationTest {
@@ -21,7 +23,7 @@ public class SuperHeroesIntegrationTest {
 	
 	@Test
 	public void getAllSuperHeroes_Test() {
-		ResponseEntity<SuperHeroes> response = restTemplate.getForEntity("/superheroes", SuperHeroes.class);
-		assertThat(response.getStatusCode()).equals(HttpStatus.OK);
+		ResponseEntity<SuperHeroesDto> response = restTemplate.getForEntity("/superheroes", SuperHeroesDto.class);
+		assertEquals(response.getStatusCode(), HttpStatus.OK);
 	}
 }
