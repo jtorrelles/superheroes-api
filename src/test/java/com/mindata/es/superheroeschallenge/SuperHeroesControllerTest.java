@@ -51,4 +51,20 @@ public class SuperHeroesControllerTest {
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isNoContent());
 	}
+
+	@Test
+	public void getSuperHeroeById_Test() throws Exception {
+
+		when(superHeroesService.getSuperHeroeById(1L)).thenReturn(new SuperHeroesDto(1L, "Superman"));
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes/1")).andExpect(status().isOk())
+				.andExpect(jsonPath("name").value("Superman"));
+	}
+
+	@Test
+	public void getSuperHeroeById_NotFound() throws Exception {
+		when(superHeroesService.getSuperHeroeById(1L)).thenThrow(new SuperHeroesNotFoundException());
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes/1")).andExpect(status().isNotFound());
+	}
 }
