@@ -51,7 +51,7 @@ public class SuperHeroesServiceTest {
 
 	@Test
 	public void findAll_returnNotFound() {
-		when(superHeroesRepository.findAll()).thenReturn(null);
+		when(superHeroesRepository.findAll()).thenReturn(new ArrayList<>());
 		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getAllSuperHeroes());
 	}
 }
