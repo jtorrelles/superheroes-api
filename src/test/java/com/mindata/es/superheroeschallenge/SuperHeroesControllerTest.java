@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.mindata.es.superheroeschallenge.controllers.SuperHeroesController;
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
+import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNoContentException;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNotFoundException;
 import com.mindata.es.superheroeschallenge.services.SuperHeroesService;
 
@@ -45,9 +46,9 @@ public class SuperHeroesControllerTest {
 	}
 
 	@Test
-	public void getAllSuperHeroes_NotFound() throws Exception {
-		when(superHeroesService.getAllSuperHeroes()).thenThrow(new SuperHeroesNotFoundException());
-		
-		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isNotFound());
+	public void getAllSuperHeroes_NotContent() throws Exception {
+		when(superHeroesService.getAllSuperHeroes()).thenThrow(new SuperHeroesNoContentException());
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isNoContent());
 	}
 }
