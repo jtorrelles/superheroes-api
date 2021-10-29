@@ -2,6 +2,7 @@ package com.mindata.es.superheroeschallenge.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
@@ -30,6 +31,12 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		}
 		response.forEach(superHeroe -> result.add(new SuperHeroesDto(superHeroe.getId(), superHeroe.getName())));
 		return result;
+	}
+
+	@Override
+	public SuperHeroesDto getSuperHeroeById(long superHeroeId) {
+		Optional<SuperHeroe> superHeroeDb = superHeroesRepository.findById(superHeroeId);
+		return new SuperHeroesDto();
 	}
 
 }
