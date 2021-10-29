@@ -1,6 +1,6 @@
 package com.mindata.es.superheroeschallenge;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -25,31 +25,33 @@ public class SuperHeroesServiceTest {
 
 	@Mock
 	private SuperHeroesRepository superHeroesRepository;
-	
+
 	private SuperHeroesService superHeroeService;
 
 	@BeforeEach
-	public void setUp() throws Exception{
+	public void setUp() throws Exception {
 		superHeroeService = new SuperHeroesServiceImpl(superHeroesRepository);
 	}
 
 	@Test
 	public void findAll_returnSuperHeroesInfo() {
-		when(superHeroesRepository.findAll()).thenReturn(new ArrayList<SuperHeroe>() {
+		Iterable<SuperHeroe> shMockedList = new ArrayList<SuperHeroe>() {
 			{
 				add(new SuperHeroe(1L, "Superman"));
 				add(new SuperHeroe(2L, "Batman"));
 			}
-		});
+		};
+		when(superHeroesRepository.findAll()).thenReturn(shMockedList);
 
-		List<SuperHeroesDto> result = superHeroeService.getAllSuperHeroes();
+		List<SuperHeroesDto> result = new ArrayList<>();
+		shMockedList.forEach(superHeroe -> result.add(new SuperHeroesDto(superHeroe.getId(), superHeroe.getName())));
 
-		assertThat(result.size()).isGreaterThan(0);
+		assertEquals(superHeroeService.getAllSuperHeroes().size(), result.size());
 	}
-	
+
 	@Test
 	public void findAll_returnNotFound() {
-		when(superHeroesRepository.findAll()).thenReturn(new ArrayList<SuperHeroe>());
+		when(superHeroesRepository.findAll()).thenReturn(null);
 		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getAllSuperHeroes());
 	}
 }
