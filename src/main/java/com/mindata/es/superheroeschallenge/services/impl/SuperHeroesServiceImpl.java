@@ -38,11 +38,24 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 	public SuperHeroesDto getSuperHeroeById(long superHeroeId) {
 		SuperHeroesDto result;
 		Optional<SuperHeroe> superHeroeDb = superHeroesRepository.findById(superHeroeId);
-		if(superHeroeDb.isPresent()) {
+		if (superHeroeDb.isPresent()) {
 			var superHeroe = superHeroeDb.get();
 			result = new SuperHeroesDto(superHeroe.getId(), superHeroe.getName());
-		}else {
+		} else {
 			throw new SuperHeroesNotFoundException();
+		}
+		return result;
+	}
+
+	@Override
+	public List<SuperHeroesDto> getSuperHeroesByName(String name) {
+		List<SuperHeroesDto> result = new ArrayList<>();
+		List<SuperHeroe> superHeroesDb = superHeroesRepository.findByNameContaining(name);
+		if (superHeroesDb.size() > 0) {
+			superHeroesDb
+					.forEach(superHeroe -> result.add(new SuperHeroesDto(superHeroe.getId(), superHeroe.getName())));
+		} else {
+			throw new SuperHeroesNoContentException();
 		}
 		return result;
 	}
