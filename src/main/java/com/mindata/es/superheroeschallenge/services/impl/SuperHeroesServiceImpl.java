@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNoContentException;
+import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNotFoundException;
 import com.mindata.es.superheroeschallenge.models.SuperHeroe;
 import com.mindata.es.superheroeschallenge.repository.SuperHeroesRepository;
 import com.mindata.es.superheroeschallenge.services.SuperHeroesService;
@@ -35,8 +36,15 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 
 	@Override
 	public SuperHeroesDto getSuperHeroeById(long superHeroeId) {
+		SuperHeroesDto result;
 		Optional<SuperHeroe> superHeroeDb = superHeroesRepository.findById(superHeroeId);
-		return new SuperHeroesDto();
+		if(superHeroeDb.isPresent()) {
+			var superHeroe = superHeroeDb.get();
+			result = new SuperHeroesDto(superHeroe.getId(), superHeroe.getName());
+		}else {
+			throw new SuperHeroesNotFoundException();
+		}
+		return result;
 	}
 
 }

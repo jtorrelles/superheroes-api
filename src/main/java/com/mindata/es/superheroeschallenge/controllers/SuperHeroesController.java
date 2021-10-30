@@ -3,6 +3,7 @@ package com.mindata.es.superheroeschallenge.controllers;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +23,11 @@ public class SuperHeroesController {
 	@GetMapping
 	private List<SuperHeroesDto> getAll() {
 		return superHeroesService.getAllSuperHeroes();
+	}
+
+	@GetMapping
+	@RequestMapping("/{id}")
+	private SuperHeroesDto getById(@PathVariable Long id) {
+		return superHeroesService.getSuperHeroeById(id);
 	}
 }
