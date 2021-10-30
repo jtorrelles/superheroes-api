@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,10 +47,7 @@ public class SuperHeroesServiceTest {
 		};
 		when(superHeroesRepository.findAll()).thenReturn(shMockedList);
 
-		List<SuperHeroesDto> result = new ArrayList<>();
-		shMockedList.forEach(superHeroe -> result.add(new SuperHeroesDto(superHeroe.getId(), superHeroe.getName())));
-
-		assertEquals(superHeroeService.getAllSuperHeroes().size(), result.size());
+		assertEquals(superHeroeService.getAllSuperHeroes().size(), StreamSupport.stream(shMockedList.spliterator(), false).count());
 	}
 
 	@Test
@@ -72,6 +70,6 @@ public class SuperHeroesServiceTest {
 	@Test
 	public void getSuperHeroeById_returnNotFound() {
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.empty());
-		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getSuperHeroeById(1L));
+		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getSuperHeroeById(anyLong()));
 	}
 }
