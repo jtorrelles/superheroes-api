@@ -41,16 +41,14 @@ public class SuperHeroesServiceTest {
 
 	@Test
 	public void findAll_returnSuperHeroesInfo() {
-		Iterable<SuperHeroe> shMockedList = new ArrayList<SuperHeroe>() {
+		when(superHeroesRepository.findAll()).thenReturn(new ArrayList<SuperHeroe>() {
 			{
 				add(new SuperHeroe(1L, "Superman"));
 				add(new SuperHeroe(2L, "Batman"));
 			}
-		};
-		when(superHeroesRepository.findAll()).thenReturn(shMockedList);
+		});
 
-		assertEquals(superHeroeService.getAllSuperHeroes().size(),
-				StreamSupport.stream(shMockedList.spliterator(), false).count());
+		assertEquals(superHeroeService.getAllSuperHeroes().size(),2);
 	}
 
 	@Test
@@ -84,8 +82,7 @@ public class SuperHeroesServiceTest {
 		});
 
 		List<SuperHeroesDto> shDto = superHeroeService.getSuperHeroesByName(anyString());
-
-		assertTrue(shDto.contains(new SuperHeroe(1L, "Superman")));
+		assertEquals(shDto.size(), 2);
 	}
 
 	@Test
