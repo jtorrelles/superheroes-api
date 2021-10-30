@@ -1,11 +1,15 @@
 package com.mindata.es.superheroeschallenge;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +46,7 @@ public class SuperHeroesControllerTest {
 		});
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isOk())
-				.andExpect(jsonPath("$").isArray());
+				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$.length()").value(2));
 	}
 
 	@Test
@@ -55,16 +59,38 @@ public class SuperHeroesControllerTest {
 	@Test
 	public void getSuperHeroeById_Test() throws Exception {
 
-		when(superHeroesService.getSuperHeroeById(1L)).thenReturn(new SuperHeroesDto(1L, "Superman"));
+		when(superHeroesService.getSuperHeroeById(anyLong())).thenReturn(new SuperHeroesDto(1L, "Superman"));
 
-		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes/1")).andExpect(status().isOk())
-				.andExpect(jsonPath("name").value("Superman"));
+		mockMvc.perform(get("/superheroes/{id}", anyLong())).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getSuperHeroeById_NotFound() throws Exception {
-		when(superHeroesService.getSuperHeroeById(1L)).thenThrow(new SuperHeroesNotFoundException());
+		when(superHeroesService.getSuperHeroeById(anyLong())).thenThrow(new SuperHeroesNotFoundException());
 
-		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes/1")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/superheroes/{id}", anyLong())).andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void getSuperHeroesByName_Test() throws Exception {
+
+		when(superHeroesService.getSuperHeroesByName(anyString())).thenReturn(new ArrayList<SuperHeroesDto>() {
+			{
+				add(new SuperHeroesDto(1L, "Superman"));
+				add(new SuperHeroesDto(2L, "Batman"));
+				add(new SuperHeroesDto(3L, "Wonder Woman"));
+			}
+		});
+
+		mockMvc.perform(get("/superheroes/find").param("name", anyString())).andExpect(status().isOk())
+				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$.length()").value(3))
+				.andExpect(jsonPath("$[*].name", Matchers.containsInAnyOrder("Superman", "Batman", "Wonder Woman")));
+	}
+
+	@Test
+	public void getSuperHeroeByName_NotContent() throws Exception {
+		when(superHeroesService.getSuperHeroesByName(anyString())).thenThrow(new SuperHeroesNoContentException());
+
+		mockMvc.perform(get("/superheroes/find").param("name", "man")).andExpect(status().isNoContent());
 	}
 }
