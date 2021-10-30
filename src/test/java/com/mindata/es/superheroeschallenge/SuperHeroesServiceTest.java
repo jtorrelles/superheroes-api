@@ -2,7 +2,9 @@ package com.mindata.es.superheroeschallenge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -47,7 +49,8 @@ public class SuperHeroesServiceTest {
 		};
 		when(superHeroesRepository.findAll()).thenReturn(shMockedList);
 
-		assertEquals(superHeroeService.getAllSuperHeroes().size(), StreamSupport.stream(shMockedList.spliterator(), false).count());
+		assertEquals(superHeroeService.getAllSuperHeroes().size(),
+				StreamSupport.stream(shMockedList.spliterator(), false).count());
 	}
 
 	@Test
@@ -58,18 +61,36 @@ public class SuperHeroesServiceTest {
 
 	@Test
 	public void getSuperHeroeById_returnSuperHeroeInfo() {
-		Optional<SuperHeroe> shMockedList = Optional.of(new SuperHeroe(1L, "Superman"));
-		when(superHeroesRepository.findById(anyLong())).thenReturn(shMockedList);
 
-		SuperHeroe sh = shMockedList.get();
-		SuperHeroesDto shDto = superHeroeService.getSuperHeroeById(1L);
-
-		assertEquals(sh.getName(), shDto.getName());
+		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.of(new SuperHeroe(1L, "Superman")));
+		SuperHeroesDto shDto = superHeroeService.getSuperHeroeById(anyLong());
+		assertEquals(shDto.getName(), "Superman");
 	}
 
 	@Test
 	public void getSuperHeroeById_returnNotFound() {
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.empty());
 		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getSuperHeroeById(anyLong()));
+	}
+
+	@Test
+	public void getSuperHeroeByName_returnSuperHeroeInfo() {
+
+		when(superHeroesRepository.findByNameContaining(anyString())).thenReturn(new ArrayList<SuperHeroe>() {
+			{
+				add(new SuperHeroe(1L, "Superman"));
+				add(new SuperHeroe(2L, "Batman"));
+			}
+		});
+
+		List<SuperHeroesDto> shDto = superHeroeService.getSuperHeroesByName(anyString());
+
+		assertTrue(shDto.contains(new SuperHeroe(1L, "Superman")));
+	}
+
+	@Test
+	public void getSuperHeroeByName_returnNoContent() {
+		when(superHeroesRepository.findByNameContaining(anyString())).thenReturn(new ArrayList<>());
+		assertThrows(SuperHeroesNoContentException.class, () -> superHeroeService.getSuperHeroesByName(anyString()));
 	}
 }
