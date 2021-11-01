@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -43,7 +44,7 @@ public class SuperHeroesController {
 		this.superHeroesService = superHeroesService;
 	}
 
-	@Operation(summary = "Obtener un listado de super heroes")
+	@Operation(summary = "Obtener un listado de super heroes", security = @SecurityRequirement(name = "Authorization"))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Super heroes encontrados", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }),
 			@ApiResponse(responseCode = "204", description = "Super heroes no encontrados", content = @Content) })
@@ -64,7 +65,7 @@ public class SuperHeroesController {
 		return new ResponseEntity<SuperHeroesResponse>(superHeroesService.getAllSuperHeroes(paging), HttpStatus.OK);
 	}
 
-	@Operation(summary = "Obtener super heroe por id")
+	@Operation(summary = "Obtener super heroe por id", security = @SecurityRequirement(name = "Authorization"))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Super heroe encontrado", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }),
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
@@ -75,7 +76,7 @@ public class SuperHeroesController {
 		return new ResponseEntity<SuperHeroesDto>(superHeroesService.getSuperHeroeById(id), HttpStatus.OK);
 	}
 
-	@Operation(summary = "Crear un nuevo super heroe")
+	@Operation(summary = "Crear un nuevo super heroe", security = @SecurityRequirement(name = "Authorization"))
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Super heroe creado", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }) })
 	@RequestExecutionTime
@@ -95,7 +96,7 @@ public class SuperHeroesController {
 		return new ResponseEntity<SuperHeroesDto>(newSuperHeroe, headers, HttpStatus.CREATED);
 	}
 
-	@Operation(summary = "Actualizar un super heroe existente")
+	@Operation(summary = "Actualizar un super heroe existente", security = @SecurityRequirement(name = "Authorization"))
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Super heroe actualizado", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }),
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
@@ -116,7 +117,7 @@ public class SuperHeroesController {
 		return new ResponseEntity<SuperHeroesDto>(newSuperHeroe, headers, HttpStatus.OK);
 	}
 
-	@Operation(summary = "Eliminar un super heroe existente")
+	@Operation(summary = "Eliminar un super heroe existente", security = @SecurityRequirement(name = "Authorization"))
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Super heroe eliminado", content = @Content),
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
