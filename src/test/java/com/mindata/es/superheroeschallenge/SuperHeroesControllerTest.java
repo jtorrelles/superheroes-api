@@ -17,10 +17,12 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,6 +38,9 @@ import com.mindata.es.superheroeschallenge.services.SuperHeroesService;
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(SuperHeroesController.class)
 public class SuperHeroesControllerTest {
+
+	@Value("${api.security.api-key}")
+	private String apiKey;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -150,5 +155,18 @@ public class SuperHeroesControllerTest {
 		mockMvc.perform(post("/superheroes").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
 				.content("{\"lastname\":\"Daredevil\"}")).andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.errors[*]").value("el nombre del super heroe es obligatorio"));
+	}
+
+	@Test
+	public void apiKeyAuthorization_shouldBeUnauthorized() throws Exception {
+		mockMvc.perform(get("/superheroes").contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION,
+				"TestingKey")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void apiKeyAuthorization_shouldBeOk() throws Exception {
+		mockMvc.perform(
+				get("/superheroes").contentType(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isOk());
 	}
 }
