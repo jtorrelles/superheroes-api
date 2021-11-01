@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "super_heroes")
 public class SuperHeroe {
 	@Id
-	private long id;
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	private String name;
 }
