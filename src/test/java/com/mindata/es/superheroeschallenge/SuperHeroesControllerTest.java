@@ -61,7 +61,8 @@ public class SuperHeroesControllerTest {
 
 	@Test
 	public void getAllSuperHeroes_NotContent() throws Exception {
-		when(superHeroesService.getAllSuperHeroes()).thenThrow(new SuperHeroesNoContentException());
+		Pageable paging = PageRequest.of(0, 3);
+		when(superHeroesService.getAllSuperHeroes(paging)).thenThrow(new SuperHeroesNoContentException());
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isNoContent());
 	}
@@ -110,7 +111,8 @@ public class SuperHeroesControllerTest {
 
 	@Test
 	public void getSuperHeroeByName_NotContent() throws Exception {
-		when(superHeroesService.getSuperHeroesByName(anyString())).thenThrow(new SuperHeroesNoContentException());
+		Pageable paging = PageRequest.of(0, 3);
+		when(superHeroesService.getSuperHeroesByName("man", paging)).thenThrow(new SuperHeroesNoContentException());
 
 		mockMvc.perform(get("/superheroes").param("name", "man")).andExpect(status().isNoContent());
 	}
