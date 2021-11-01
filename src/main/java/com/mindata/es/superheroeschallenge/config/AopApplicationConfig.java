@@ -28,9 +28,9 @@ public class AopApplicationConfig {
 
 		var startExecution = System.currentTimeMillis();
 		var result = proceedingJoinPoint.proceed();
-		var endExecution = startExecution - System.currentTimeMillis();
+		var endExecution = System.currentTimeMillis() - startExecution;
 
-		log.info("SuperHeroe Challenge API, Execution time of {}.{} in {}",
+		log.info("SuperHeroe Challenge API, Execution time of {}.{} in {} ms",
 				methodSignature.getDeclaringType().getSimpleName(), methodSignature.getName(), endExecution);
 
 		return result;

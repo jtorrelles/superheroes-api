@@ -30,7 +30,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/superheroes")
 public class SuperHeroesController {
@@ -53,9 +55,12 @@ public class SuperHeroesController {
 			@RequestParam(defaultValue = "3") @Min(value = 1) int size) {
 		Pageable paging = PageRequest.of(page, size);
 		if (name.isPresent()) {
+			log.debug("recibida peticion para buscar los super heroes segun la siguiente condicion name={}",
+					name.get());
 			return new ResponseEntity<SuperHeroesResponse>(superHeroesService.getSuperHeroesByName(name.get(), paging),
 					HttpStatus.OK);
 		}
+		log.debug("recibida peticion para buscar los super heroes en la bd");
 		return new ResponseEntity<SuperHeroesResponse>(superHeroesService.getAllSuperHeroes(paging), HttpStatus.OK);
 	}
 
@@ -66,6 +71,7 @@ public class SuperHeroesController {
 	@RequestExecutionTime
 	@GetMapping("/{id}")
 	public ResponseEntity<SuperHeroesDto> getById(@PathVariable("id") String id) {
+		log.debug("recibida peticion para buscar super heroe segun el id {}", id);
 		return new ResponseEntity<SuperHeroesDto>(superHeroesService.getSuperHeroeById(id), HttpStatus.OK);
 	}
 
@@ -75,6 +81,8 @@ public class SuperHeroesController {
 	@RequestExecutionTime
 	@PostMapping
 	public ResponseEntity<SuperHeroesDto> createSuperHeroe(@Valid @RequestBody SuperHeroesDto newSuperHeroe) {
+
+		log.debug("recibida peticion para crear un nuevo super heroe {}", newSuperHeroe.toString());
 
 		Long superHeroeId = superHeroesService.createSuperHeroe(newSuperHeroe);
 		newSuperHeroe.setId(superHeroeId);
@@ -96,6 +104,8 @@ public class SuperHeroesController {
 	public ResponseEntity<SuperHeroesDto> updateSuperHeroe(@PathVariable String id,
 			@RequestBody(required = true) SuperHeroesDto newSuperHeroe) {
 
+		log.debug("recibida peticion para actualizar super heroe con id {}, con los siguientes datos {}", id,
+				newSuperHeroe.toString());
 		superHeroesService.updateSuperHeroe(id, newSuperHeroe);
 
 		String resourceLocation = new StringBuilder("/superheroes/").append(id).toString();
@@ -113,6 +123,8 @@ public class SuperHeroesController {
 	@RequestExecutionTime
 	@DeleteMapping("/{id}")
 	public ResponseEntity<HttpStatus> updateSuperHeroe(@PathVariable String id) {
+
+		log.debug("recibida peticion para eliminar super heroe con id {}", id);
 		superHeroesService.deleteSuperHeroe(id);
 		return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
 	}
