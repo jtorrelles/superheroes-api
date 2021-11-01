@@ -63,14 +63,14 @@ public class SuperHeroesServiceTest {
 	public void getSuperHeroeById_returnSuperHeroeInfo() {
 
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.of(new SuperHeroe(1L, "Superman")));
-		SuperHeroesDto shDto = superHeroeService.getSuperHeroeById(anyLong());
+		SuperHeroesDto shDto = superHeroeService.getSuperHeroeById("1");
 		assertEquals(shDto.getName(), "Superman");
 	}
 
 	@Test
 	public void getSuperHeroeById_returnNotFound() {
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.empty());
-		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getSuperHeroeById(anyLong()));
+		assertThrows(SuperHeroesNotFoundException.class, () -> superHeroeService.getSuperHeroeById("1"));
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class SuperHeroesServiceTest {
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.of(new SuperHeroe(4L, "Green Latern")));
 		when(superHeroesRepository.save(any(SuperHeroe.class))).thenReturn(any(SuperHeroe.class));
 
-		var updatedSuperHeroe = superHeroeService.updateSuperHeroe(1L, input);
+		var updatedSuperHeroe = superHeroeService.updateSuperHeroe("1", input);
 		assertNotNull(updatedSuperHeroe);
 	}
 
@@ -120,18 +120,18 @@ public class SuperHeroesServiceTest {
 	public void updateSuperHeroe_returnNotFound() {
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.empty());
 		assertThrows(SuperHeroesNotFoundException.class,
-				() -> superHeroeService.updateSuperHeroe(anyLong(), new SuperHeroesDto(1L, "Superman")));
+				() -> superHeroeService.updateSuperHeroe("1", new SuperHeroesDto(1L, "Superman")));
 	}
 
 	@Test
 	public void deleteSuperHeroe_shouldBeNoContent() {
 		when(superHeroesRepository.existsById(anyLong())).thenReturn(Boolean.TRUE);
-		assertTrue(superHeroeService.deleteSuperHeroe(anyLong()));
+		assertTrue(superHeroeService.deleteSuperHeroe("1"));
 	}
 
 	@Test
 	public void deleteSuperHeroe_shouldBeNotFound() {
 		when(superHeroesRepository.existsById(anyLong())).thenReturn(Boolean.FALSE);
-		assertFalse(superHeroeService.deleteSuperHeroe(anyLong()));
+		assertFalse(superHeroeService.deleteSuperHeroe("1"));
 	}
 }

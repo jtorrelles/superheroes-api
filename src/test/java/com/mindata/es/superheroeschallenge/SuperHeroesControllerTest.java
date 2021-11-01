@@ -65,16 +65,23 @@ public class SuperHeroesControllerTest {
 	@Test
 	public void getSuperHeroeById_Test() throws Exception {
 
-		when(superHeroesService.getSuperHeroeById(anyLong())).thenReturn(new SuperHeroesDto(1L, "Superman"));
+		when(superHeroesService.getSuperHeroeById(anyString())).thenReturn(new SuperHeroesDto(1L, "Superman"));
 
-		mockMvc.perform(get("/superheroes/{id}", anyLong())).andExpect(status().isOk());
+		mockMvc.perform(get("/superheroes/{id}", "1")).andExpect(status().isOk());
 	}
 
 	@Test
 	public void getSuperHeroeById_NotFound() throws Exception {
-		when(superHeroesService.getSuperHeroeById(anyLong())).thenThrow(new SuperHeroesNotFoundException());
+		when(superHeroesService.getSuperHeroeById(anyString())).thenThrow(new SuperHeroesNotFoundException());
 
-		mockMvc.perform(get("/superheroes/{id}", anyLong())).andExpect(status().isNotFound());
+		mockMvc.perform(get("/superheroes/{id}", "10")).andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void getSuperHeroeById_NotFoundwithAnyString() throws Exception {
+		when(superHeroesService.getSuperHeroeById(anyString())).thenThrow(new NumberFormatException());
+
+		mockMvc.perform(get("/superheroes/{id}", "0")).andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -114,11 +121,11 @@ public class SuperHeroesControllerTest {
 	@Test
 	public void updateSuperHeroe_Test() throws Exception {
 
-		when(superHeroesService.updateSuperHeroe(anyLong(), any(SuperHeroesDto.class)))
+		when(superHeroesService.updateSuperHeroe(anyString(), any(SuperHeroesDto.class)))
 				.thenReturn(new SuperHeroesDto(4L, "Cat Woman"));
 
-		mockMvc.perform(put("/superheroes/{id}", 4L).contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).content("{\"name\":\"Cat Woman\"}")).andExpect(status().isCreated())
+		mockMvc.perform(put("/superheroes/{id}", "4").contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).content("{\"name\":\"Cat Woman\"}")).andExpect(status().isOk())
 				.andExpect(header().string("Location", "/superheroes/4"))
 				.andExpect(jsonPath("$.name").value("Cat Woman"));
 	}
@@ -126,5 +133,12 @@ public class SuperHeroesControllerTest {
 	@Test
 	public void deleteSuperHeroe_Test() throws Exception {
 		mockMvc.perform(delete("/superheroes/{id}", 4L)).andExpect(status().isNoContent());
+	}
+
+	@Test
+	public void createSuperHeroeWithMissingName_shouldBeBadRequestResponse() throws Exception {
+		mockMvc.perform(post("/superheroes").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content("{\"lastname\":\"Daredevil\"}")).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors[*]").value("el nombre del super heroe es obligatorio"));
 	}
 }
