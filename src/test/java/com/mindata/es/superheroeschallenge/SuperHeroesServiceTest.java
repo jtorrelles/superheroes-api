@@ -18,7 +18,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNoContentException;
@@ -43,20 +48,26 @@ public class SuperHeroesServiceTest {
 
 	@Test
 	public void findAll_returnSuperHeroesInfo() {
-		when(superHeroesRepository.findAll()).thenReturn(new ArrayList<SuperHeroe>() {
+		Pageable paging = PageRequest.of(0, 3);
+		List<SuperHeroe> superHeroes = new ArrayList<SuperHeroe>() {
 			{
 				add(new SuperHeroe(1L, "Superman"));
 				add(new SuperHeroe(2L, "Batman"));
 			}
-		});
+		};
+		Page<SuperHeroe> pagedResponse = new PageImpl<>(superHeroes);
+		when(superHeroesRepository.findAll(paging)).thenReturn(pagedResponse);
 
-		assertEquals(superHeroeService.getAllSuperHeroes().size(), 2);
+		assertNotNull(superHeroeService.getAllSuperHeroes(paging));
+		assertEquals(superHeroeService.getAllSuperHeroes(paging).getSuperheroes().size(), 2);
 	}
 
 	@Test
 	public void findAll_returnNoContent() {
-		when(superHeroesRepository.findAll()).thenReturn(new ArrayList<>());
-		assertThrows(SuperHeroesNoContentException.class, () -> superHeroeService.getAllSuperHeroes());
+		Pageable paging = PageRequest.of(0, 3);
+		Page<SuperHeroe> superHeroe = Mockito.mock(Page.class);
+		when(superHeroesRepository.findAll(paging)).thenReturn(superHeroe);
+		assertThrows(SuperHeroesNoContentException.class, () -> superHeroeService.getAllSuperHeroes(paging));
 	}
 
 	@Test
@@ -75,22 +86,27 @@ public class SuperHeroesServiceTest {
 
 	@Test
 	public void getSuperHeroeByName_returnSuperHeroeInfo() {
-
-		when(superHeroesRepository.findByNameContaining(anyString())).thenReturn(new ArrayList<SuperHeroe>() {
+		Pageable paging = PageRequest.of(0, 3);
+		List<SuperHeroe> superHeroes = new ArrayList<SuperHeroe>() {
 			{
 				add(new SuperHeroe(1L, "Superman"));
 				add(new SuperHeroe(2L, "Batman"));
 			}
-		});
+		};
+		Page<SuperHeroe> pagedResponse = new PageImpl<>(superHeroes);
+		when(superHeroesRepository.findByNameContaining("man", paging)).thenReturn(pagedResponse);
 
-		List<SuperHeroesDto> shDto = superHeroeService.getSuperHeroesByName(anyString());
-		assertEquals(shDto.size(), 2);
+		assertNotNull(superHeroeService.getSuperHeroesByName("man", paging));
+		assertEquals(superHeroeService.getSuperHeroesByName("man", paging).getSuperheroes().size(), 2);
 	}
 
 	@Test
 	public void getSuperHeroeByName_returnNoContent() {
-		when(superHeroesRepository.findByNameContaining(anyString())).thenReturn(new ArrayList<>());
-		assertThrows(SuperHeroesNoContentException.class, () -> superHeroeService.getSuperHeroesByName(anyString()));
+		Pageable paging = PageRequest.of(0, 3);
+		Page<SuperHeroe> superHeroe = Mockito.mock(Page.class);
+		when(superHeroesRepository.findByNameContaining("man", paging)).thenReturn(superHeroe);
+		assertThrows(SuperHeroesNoContentException.class,
+				() -> superHeroeService.getSuperHeroesByName("man", paging));
 	}
 
 	@Test
