@@ -1,8 +1,11 @@
 package com.mindata.es.superheroeschallenge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -10,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +50,7 @@ public class SuperHeroesServiceTest {
 			}
 		});
 
-		assertEquals(superHeroeService.getAllSuperHeroes().size(),2);
+		assertEquals(superHeroeService.getAllSuperHeroes().size(), 2);
 	}
 
 	@Test
@@ -89,5 +91,47 @@ public class SuperHeroesServiceTest {
 	public void getSuperHeroeByName_returnNoContent() {
 		when(superHeroesRepository.findByNameContaining(anyString())).thenReturn(new ArrayList<>());
 		assertThrows(SuperHeroesNoContentException.class, () -> superHeroeService.getSuperHeroesByName(anyString()));
+	}
+
+	@Test
+	public void createSuperHeroe_returnCreatedSuperHeroe() {
+		var newSuperHeroeMock = new SuperHeroesDto();
+		newSuperHeroeMock.setName("Green Latern");
+
+		when(superHeroesRepository.save(any(SuperHeroe.class))).thenReturn(new SuperHeroe(1L, "Green Latern"));
+
+		assertNotNull(superHeroeService.createSuperHeroe(newSuperHeroeMock));
+	}
+
+	@Test
+	public void updateSuperHeroe_returnUpdatedSuperHeroe() {
+
+		SuperHeroesDto input = new SuperHeroesDto();
+		input.setName("Green Latern");
+
+		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.of(new SuperHeroe(4L, "Green Latern")));
+		when(superHeroesRepository.save(any(SuperHeroe.class))).thenReturn(any(SuperHeroe.class));
+
+		var updatedSuperHeroe = superHeroeService.updateSuperHeroe(1L, input);
+		assertNotNull(updatedSuperHeroe);
+	}
+
+	@Test
+	public void updateSuperHeroe_returnNotFound() {
+		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.empty());
+		assertThrows(SuperHeroesNotFoundException.class,
+				() -> superHeroeService.updateSuperHeroe(anyLong(), new SuperHeroesDto(1L, "Superman")));
+	}
+
+	@Test
+	public void deleteSuperHeroe_shouldBeNoContent() {
+		when(superHeroesRepository.existsById(anyLong())).thenReturn(Boolean.TRUE);
+		assertTrue(superHeroeService.deleteSuperHeroe(anyLong()));
+	}
+
+	@Test
+	public void deleteSuperHeroe_shouldBeNotFound() {
+		when(superHeroesRepository.existsById(anyLong())).thenReturn(Boolean.FALSE);
+		assertFalse(superHeroeService.deleteSuperHeroe(anyLong()));
 	}
 }

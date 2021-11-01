@@ -1,9 +1,14 @@
 package com.mindata.es.superheroeschallenge;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -15,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -82,7 +88,7 @@ public class SuperHeroesControllerTest {
 			}
 		});
 
-		mockMvc.perform(get("/superheroes/find").param("name", anyString())).andExpect(status().isOk())
+		mockMvc.perform(get("/superheroes").param("name", anyString())).andExpect(status().isOk())
 				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$.length()").value(3))
 				.andExpect(jsonPath("$[*].name", Matchers.containsInAnyOrder("Superman", "Batman", "Wonder Woman")));
 	}
@@ -91,6 +97,34 @@ public class SuperHeroesControllerTest {
 	public void getSuperHeroeByName_NotContent() throws Exception {
 		when(superHeroesService.getSuperHeroesByName(anyString())).thenThrow(new SuperHeroesNoContentException());
 
-		mockMvc.perform(get("/superheroes/find").param("name", "man")).andExpect(status().isNoContent());
+		mockMvc.perform(get("/superheroes").param("name", "man")).andExpect(status().isNoContent());
+	}
+
+	@Test
+	public void createSuperHeroe_Test() throws Exception {
+
+		when(superHeroesService.createSuperHeroe(any(SuperHeroesDto.class))).thenReturn(4L);
+
+		mockMvc.perform(post("/superheroes").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content("{\"name\":\"Catwoman\"}")).andExpect(status().isCreated())
+				.andExpect(header().string("Location", "/superheroes/4"))
+				.andExpect(jsonPath("$.name").value("Catwoman")).andExpect(jsonPath("$.id").value(4L));
+	}
+
+	@Test
+	public void updateSuperHeroe_Test() throws Exception {
+
+		when(superHeroesService.updateSuperHeroe(anyLong(), any(SuperHeroesDto.class)))
+				.thenReturn(new SuperHeroesDto(4L, "Cat Woman"));
+
+		mockMvc.perform(put("/superheroes/{id}", 4L).contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).content("{\"name\":\"Cat Woman\"}")).andExpect(status().isCreated())
+				.andExpect(header().string("Location", "/superheroes/4"))
+				.andExpect(jsonPath("$.name").value("Cat Woman"));
+	}
+
+	@Test
+	public void deleteSuperHeroe_Test() throws Exception {
+		mockMvc.perform(delete("/superheroes/{id}", 4L)).andExpect(status().isNoContent());
 	}
 }
