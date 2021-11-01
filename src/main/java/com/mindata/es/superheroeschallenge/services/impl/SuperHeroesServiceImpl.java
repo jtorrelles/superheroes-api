@@ -41,15 +41,17 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 	@RequestExecutionTime
 	@Cacheable("superheroes")
 	@Override
-	public SuperHeroesDto getSuperHeroeById(long superHeroeId) {
+	public SuperHeroesDto getSuperHeroeById(String superHeroeId) {
 		SuperHeroesDto result;
-		Optional<SuperHeroe> superHeroeDb = superHeroesRepository.findById(superHeroeId);
+		var id = Long.parseLong(superHeroeId);
+		Optional<SuperHeroe> superHeroeDb = superHeroesRepository.findById(id);
 		if (superHeroeDb.isPresent()) {
 			var superHeroe = superHeroeDb.get();
 			result = new SuperHeroesDto(superHeroe.getId(), superHeroe.getName());
 		} else {
 			throw new SuperHeroesNotFoundException();
 		}
+
 		return result;
 	}
 
@@ -81,15 +83,16 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 
 	@RequestExecutionTime
 	@Override
-	public SuperHeroesDto updateSuperHeroe(Long idSuperHeroe, SuperHeroesDto newSuperHeroe) {
+	public SuperHeroesDto updateSuperHeroe(String idSuperHeroe, SuperHeroesDto newSuperHeroe) {
 
-		var superHeroeDb = superHeroesRepository.findById(idSuperHeroe);
+		var id = Long.parseLong(idSuperHeroe);
+		var superHeroeDb = superHeroesRepository.findById(id);
 		if (superHeroeDb.isPresent()) {
 			var superHeroe = superHeroeDb.get();
 			superHeroe.setName(newSuperHeroe.getName());
 
 			superHeroe = superHeroesRepository.save(superHeroe);
-			newSuperHeroe.setId(idSuperHeroe);
+			newSuperHeroe.setId(id);
 		} else {
 			throw new SuperHeroesNotFoundException();
 		}
@@ -98,9 +101,10 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 
 	@RequestExecutionTime
 	@Override
-	public Boolean deleteSuperHeroe(Long idSuperHeroe) {
-		if (superHeroesRepository.existsById(idSuperHeroe)) {
-			superHeroesRepository.deleteById(idSuperHeroe);
+	public Boolean deleteSuperHeroe(String idSuperHeroe) {
+		var id = Long.parseLong(idSuperHeroe);
+		if (superHeroesRepository.existsById(id)) {
+			superHeroesRepository.deleteById(id);
 			return true;
 		} else {
 			return false;

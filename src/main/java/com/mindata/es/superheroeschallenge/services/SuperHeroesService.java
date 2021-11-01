@@ -7,13 +7,13 @@ import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
 public interface SuperHeroesService {
 	List<SuperHeroesDto> getAllSuperHeroes();
 
-	SuperHeroesDto getSuperHeroeById(long superHeroeId);
+	SuperHeroesDto getSuperHeroeById(String superHeroeId);
 
 	List<SuperHeroesDto> getSuperHeroesByName(String name);
 
 	Long createSuperHeroe(SuperHeroesDto newSuperHeroe);
 
-	SuperHeroesDto updateSuperHeroe(Long idSuperHeroe, SuperHeroesDto superHeroe);
+	SuperHeroesDto updateSuperHeroe(String idSuperHeroe, SuperHeroesDto superHeroe);
 
-	Boolean deleteSuperHeroe(Long idSuperHeroe);
+	Boolean deleteSuperHeroe(String idSuperHeroe);
 }

@@ -3,6 +3,8 @@ package com.mindata.es.superheroeschallenge.controllers;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +59,7 @@ public class SuperHeroesController {
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
 	@RequestExecutionTime
 	@GetMapping("/{id}")
-	public ResponseEntity<SuperHeroesDto> getById(@PathVariable long id) {
+	public ResponseEntity<SuperHeroesDto> getById(@PathVariable("id") String id) {
 		return new ResponseEntity<SuperHeroesDto>(superHeroesService.getSuperHeroeById(id), HttpStatus.OK);
 	}
 
@@ -66,7 +68,7 @@ public class SuperHeroesController {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }) })
 	@RequestExecutionTime
 	@PostMapping
-	public ResponseEntity<SuperHeroesDto> createSuperHeroe(@RequestBody SuperHeroesDto newSuperHeroe) {
+	public ResponseEntity<SuperHeroesDto> createSuperHeroe(@Valid @RequestBody SuperHeroesDto newSuperHeroe) {
 
 		Long superHeroeId = superHeroesService.createSuperHeroe(newSuperHeroe);
 		newSuperHeroe.setId(superHeroeId);
@@ -76,7 +78,7 @@ public class SuperHeroesController {
 		headers.add("Content-Type", "application/json; charset=UTF-8");
 		headers.add("Location", resourceLocation);
 
-		return new ResponseEntity<SuperHeroesDto>(newSuperHeroe, headers, HttpStatus.OK);
+		return new ResponseEntity<SuperHeroesDto>(newSuperHeroe, headers, HttpStatus.CREATED);
 	}
 
 	@Operation(summary = "Actualizar un super heroe existente")
@@ -85,7 +87,7 @@ public class SuperHeroesController {
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
 	@RequestExecutionTime
 	@PutMapping("/{id}")
-	public ResponseEntity<SuperHeroesDto> updateSuperHeroe(@PathVariable Long id,
+	public ResponseEntity<SuperHeroesDto> updateSuperHeroe(@PathVariable String id,
 			@RequestBody(required = true) SuperHeroesDto newSuperHeroe) {
 
 		superHeroesService.updateSuperHeroe(id, newSuperHeroe);
@@ -104,7 +106,7 @@ public class SuperHeroesController {
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
 	@RequestExecutionTime
 	@DeleteMapping("/{id}")
-	public ResponseEntity<HttpStatus> updateSuperHeroe(@PathVariable Long id) {
+	public ResponseEntity<HttpStatus> updateSuperHeroe(@PathVariable String id) {
 		superHeroesService.deleteSuperHeroe(id);
 		return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
 	}
