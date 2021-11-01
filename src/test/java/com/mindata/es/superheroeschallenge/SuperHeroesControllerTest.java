@@ -1,7 +1,6 @@
 package com.mindata.es.superheroeschallenge;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -20,6 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.mindata.es.superheroeschallenge.controllers.SuperHeroesController;
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
+import com.mindata.es.superheroeschallenge.dto.response.SuperHeroesResponse;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNoContentException;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNotFoundException;
 import com.mindata.es.superheroeschallenge.services.SuperHeroesService;
@@ -43,16 +45,18 @@ public class SuperHeroesControllerTest {
 
 	@Test
 	public void getAllSuperHeroes_Test() throws Exception {
+		Pageable paging = PageRequest.of(0, 3);
+		when(superHeroesService.getAllSuperHeroes(paging))
+				.thenReturn(new SuperHeroesResponse(new ArrayList<SuperHeroesDto>() {
+					{
+						add(new SuperHeroesDto(1L, "Superman"));
+						add(new SuperHeroesDto(2L, "Batman"));
+					}
+				}, 2L, 2L, 2L));
 
-		when(superHeroesService.getAllSuperHeroes()).thenReturn(new ArrayList<SuperHeroesDto>() {
-			{
-				add(new SuperHeroesDto(1L, "Superman"));
-				add(new SuperHeroesDto(2L, "Batman"));
-			}
-		});
-
-		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isOk())
-				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$.length()").value(2));
+		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes").param("page", "0").param("size", "3"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.superheroes").isArray())
+				.andExpect(jsonPath("$.superheroes.length()").value(2));
 	}
 
 	@Test
@@ -86,18 +90,22 @@ public class SuperHeroesControllerTest {
 
 	@Test
 	public void getSuperHeroesByName_Test() throws Exception {
+		Pageable paging = PageRequest.of(0, 3);
+		when(superHeroesService.getSuperHeroesByName("man", paging))
+				.thenReturn(new SuperHeroesResponse(new ArrayList<SuperHeroesDto>() {
+					{
+						add(new SuperHeroesDto(1L, "Superman"));
+						add(new SuperHeroesDto(2L, "Batman"));
+						add(new SuperHeroesDto(3L, "Wonder Woman"));
+					}
+				}, 3L, 3L, 0L));
 
-		when(superHeroesService.getSuperHeroesByName(anyString())).thenReturn(new ArrayList<SuperHeroesDto>() {
-			{
-				add(new SuperHeroesDto(1L, "Superman"));
-				add(new SuperHeroesDto(2L, "Batman"));
-				add(new SuperHeroesDto(3L, "Wonder Woman"));
-			}
-		});
-
-		mockMvc.perform(get("/superheroes").param("name", anyString())).andExpect(status().isOk())
-				.andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$.length()").value(3))
-				.andExpect(jsonPath("$[*].name", Matchers.containsInAnyOrder("Superman", "Batman", "Wonder Woman")));
+		mockMvc.perform(get("/superheroes").param("name", "man").param("page", "0").param("size", "3"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.superheroes").isArray())
+				.andExpect(jsonPath("$.superheroes.length()").value(3))
+				.andExpect(jsonPath("$.superheroes[*].name",
+						Matchers.containsInAnyOrder("Superman", "Batman", "Wonder Woman")))
+				.andExpect(jsonPath("$.currentPage").value(0)).andExpect(jsonPath("$.totalItems").value(3));
 	}
 
 	@Test
