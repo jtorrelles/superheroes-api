@@ -1,10 +1,12 @@
 package com.mindata.es.superheroeschallenge.controllers;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mindata.es.superheroeschallenge.config.RequestExecutionTime;
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
+import com.mindata.es.superheroeschallenge.dto.response.SuperHeroesResponse;
 import com.mindata.es.superheroeschallenge.services.SuperHeroesService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,13 +47,16 @@ public class SuperHeroesController {
 			@ApiResponse(responseCode = "204", description = "Super heroes no encontrados", content = @Content) })
 	@RequestExecutionTime
 	@GetMapping
-	public ResponseEntity<List<SuperHeroesDto>> getAll(
-			@RequestParam(required = false, name = "name") Optional<String> name) {
+	public ResponseEntity<SuperHeroesResponse> getAll(
+			@RequestParam(required = false, name = "name") Optional<String> name,
+			@RequestParam(defaultValue = "0") @Min(value = 0) int page,
+			@RequestParam(defaultValue = "3") @Min(value = 1) int size) {
+		Pageable paging = PageRequest.of(page, size);
 		if (name.isPresent()) {
-			return new ResponseEntity<List<SuperHeroesDto>>(superHeroesService.getSuperHeroesByName(name.get()),
+			return new ResponseEntity<SuperHeroesResponse>(superHeroesService.getSuperHeroesByName(name.get(), paging),
 					HttpStatus.OK);
 		}
-		return new ResponseEntity<List<SuperHeroesDto>>(superHeroesService.getAllSuperHeroes(), HttpStatus.OK);
+		return new ResponseEntity<SuperHeroesResponse>(superHeroesService.getAllSuperHeroes(paging), HttpStatus.OK);
 	}
 
 	@Operation(summary = "Obtener super heroe por id")

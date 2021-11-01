@@ -1,15 +1,16 @@
 package com.mindata.es.superheroeschallenge.services;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
+import com.mindata.es.superheroeschallenge.dto.response.SuperHeroesResponse;
 
 public interface SuperHeroesService {
-	List<SuperHeroesDto> getAllSuperHeroes();
+	SuperHeroesResponse getAllSuperHeroes(Pageable pageable);
 
 	SuperHeroesDto getSuperHeroeById(String superHeroeId);
 
-	List<SuperHeroesDto> getSuperHeroesByName(String name);
+	SuperHeroesResponse getSuperHeroesByName(String name, Pageable pageable);
 
 	Long createSuperHeroe(SuperHeroesDto newSuperHeroe);
 
