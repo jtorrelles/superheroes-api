@@ -26,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.mindata.es.superheroeschallenge.controllers.SuperHeroesController;
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
@@ -59,7 +58,8 @@ public class SuperHeroesControllerTest {
 					}
 				}, 2L, 2L, 2L));
 
-		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes").param("page", "0").param("size", "3"))
+		mockMvc.perform(
+				get("/superheroes").param("page", "0").param("size", "3").header(HttpHeaders.AUTHORIZATION, apiKey))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.superheroes").isArray())
 				.andExpect(jsonPath("$.superheroes.length()").value(2));
 	}
@@ -69,7 +69,8 @@ public class SuperHeroesControllerTest {
 		Pageable paging = PageRequest.of(0, 3);
 		when(superHeroesService.getAllSuperHeroes(paging)).thenThrow(new SuperHeroesNoContentException());
 
-		mockMvc.perform(MockMvcRequestBuilders.get("/superheroes")).andExpect(status().isNoContent());
+		mockMvc.perform(get("/superheroes").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isNoContent());
 	}
 
 	@Test
@@ -77,21 +78,24 @@ public class SuperHeroesControllerTest {
 
 		when(superHeroesService.getSuperHeroeById(anyString())).thenReturn(new SuperHeroesDto(1L, "Superman"));
 
-		mockMvc.perform(get("/superheroes/{id}", "1")).andExpect(status().isOk());
+		mockMvc.perform(get("/superheroes/{id}", "1").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isOk());
 	}
 
 	@Test
 	public void getSuperHeroeById_NotFound() throws Exception {
 		when(superHeroesService.getSuperHeroeById(anyString())).thenThrow(new SuperHeroesNotFoundException());
 
-		mockMvc.perform(get("/superheroes/{id}", "10")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/superheroes/{id}", "10").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	public void getSuperHeroeById_NotFoundwithAnyString() throws Exception {
 		when(superHeroesService.getSuperHeroeById(anyString())).thenThrow(new NumberFormatException());
 
-		mockMvc.perform(get("/superheroes/{id}", "0")).andExpect(status().isBadRequest());
+		mockMvc.perform(get("/superheroes/{id}", "0").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -106,9 +110,9 @@ public class SuperHeroesControllerTest {
 					}
 				}, 3L, 3L, 0L));
 
-		mockMvc.perform(get("/superheroes").param("name", "man").param("page", "0").param("size", "3"))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.superheroes").isArray())
-				.andExpect(jsonPath("$.superheroes.length()").value(3))
+		mockMvc.perform(get("/superheroes").param("name", "man").param("page", "0").param("size", "3")
+				.header(HttpHeaders.AUTHORIZATION, apiKey)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.superheroes").isArray()).andExpect(jsonPath("$.superheroes.length()").value(3))
 				.andExpect(jsonPath("$.superheroes[*].name",
 						Matchers.containsInAnyOrder("Superman", "Batman", "Wonder Woman")))
 				.andExpect(jsonPath("$.currentPage").value(0)).andExpect(jsonPath("$.totalItems").value(3));
@@ -119,7 +123,8 @@ public class SuperHeroesControllerTest {
 		Pageable paging = PageRequest.of(0, 3);
 		when(superHeroesService.getSuperHeroesByName("man", paging)).thenThrow(new SuperHeroesNoContentException());
 
-		mockMvc.perform(get("/superheroes").param("name", "man")).andExpect(status().isNoContent());
+		mockMvc.perform(get("/superheroes").param("name", "man").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isNoContent());
 	}
 
 	@Test
@@ -128,8 +133,8 @@ public class SuperHeroesControllerTest {
 		when(superHeroesService.createSuperHeroe(any(SuperHeroesDto.class))).thenReturn(4L);
 
 		mockMvc.perform(post("/superheroes").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
-				.content("{\"name\":\"Catwoman\"}")).andExpect(status().isCreated())
-				.andExpect(header().string("Location", "/superheroes/4"))
+				.content("{\"name\":\"Catwoman\"}").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isCreated()).andExpect(header().string("Location", "/superheroes/4"))
 				.andExpect(jsonPath("$.name").value("Catwoman")).andExpect(jsonPath("$.id").value(4L));
 	}
 
@@ -139,21 +144,24 @@ public class SuperHeroesControllerTest {
 		when(superHeroesService.updateSuperHeroe(anyString(), any(SuperHeroesDto.class)))
 				.thenReturn(new SuperHeroesDto(4L, "Cat Woman"));
 
-		mockMvc.perform(put("/superheroes/{id}", "4").contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).content("{\"name\":\"Cat Woman\"}")).andExpect(status().isOk())
-				.andExpect(header().string("Location", "/superheroes/4"))
+		mockMvc.perform(
+				put("/superheroes/{id}", "4").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+						.content("{\"name\":\"Cat Woman\"}").header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isOk()).andExpect(header().string("Location", "/superheroes/4"))
 				.andExpect(jsonPath("$.name").value("Cat Woman"));
 	}
 
 	@Test
 	public void deleteSuperHeroe_Test() throws Exception {
-		mockMvc.perform(delete("/superheroes/{id}", 4L)).andExpect(status().isNoContent());
+		mockMvc.perform(delete("/superheroes/{id}", 4L).header(HttpHeaders.AUTHORIZATION, apiKey))
+				.andExpect(status().isNoContent());
 	}
 
 	@Test
 	public void createSuperHeroeWithMissingName_shouldBeBadRequestResponse() throws Exception {
 		mockMvc.perform(post("/superheroes").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
-				.content("{\"lastname\":\"Daredevil\"}")).andExpect(status().isBadRequest())
+				.header(HttpHeaders.AUTHORIZATION, apiKey).content("{\"lastname\":\"Daredevil\"}"))
+				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.errors[*]").value("el nombre del super heroe es obligatorio"));
 	}
 
