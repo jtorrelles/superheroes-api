@@ -8,6 +8,7 @@ import java.util.stream.StreamSupport;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.mindata.es.superheroeschallenge.config.RequestExecutionTime;
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNoContentException;
 import com.mindata.es.superheroeschallenge.exceptions.SuperHeroesNotFoundException;
@@ -24,6 +25,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		this.superHeroesRepository = superHeroesRepository;
 	}
 
+	@RequestExecutionTime
 	@Cacheable("superheroes")
 	@Override
 	public List<SuperHeroesDto> getAllSuperHeroes() {
@@ -36,6 +38,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return result;
 	}
 
+	@RequestExecutionTime
 	@Cacheable("superheroes")
 	@Override
 	public SuperHeroesDto getSuperHeroeById(long superHeroeId) {
@@ -50,6 +53,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return result;
 	}
 
+	@RequestExecutionTime
 	@Cacheable("superheroes")
 	@Override
 	public List<SuperHeroesDto> getSuperHeroesByName(String name) {
@@ -64,6 +68,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return result;
 	}
 
+	@RequestExecutionTime
 	@Override
 	public Long createSuperHeroe(SuperHeroesDto superHeroe) {
 
@@ -74,6 +79,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return newSuperHeroe.getId();
 	}
 
+	@RequestExecutionTime
 	@Override
 	public SuperHeroesDto updateSuperHeroe(Long idSuperHeroe, SuperHeroesDto newSuperHeroe) {
 
@@ -90,6 +96,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return newSuperHeroe;
 	}
 
+	@RequestExecutionTime
 	@Override
 	public Boolean deleteSuperHeroe(Long idSuperHeroe) {
 		if (superHeroesRepository.existsById(idSuperHeroe)) {

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mindata.es.superheroeschallenge.config.RequestExecutionTime;
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
 import com.mindata.es.superheroeschallenge.services.SuperHeroesService;
 
@@ -39,6 +40,7 @@ public class SuperHeroesController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Super heroes encontrados", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }),
 			@ApiResponse(responseCode = "204", description = "Super heroes no encontrados", content = @Content) })
+	@RequestExecutionTime
 	@GetMapping
 	public ResponseEntity<List<SuperHeroesDto>> getAll(
 			@RequestParam(required = false, name = "name") Optional<String> name) {
@@ -53,6 +55,7 @@ public class SuperHeroesController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Super heroe encontrado", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }),
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
+	@RequestExecutionTime
 	@GetMapping("/{id}")
 	public ResponseEntity<SuperHeroesDto> getById(@PathVariable long id) {
 		return new ResponseEntity<SuperHeroesDto>(superHeroesService.getSuperHeroeById(id), HttpStatus.OK);
@@ -61,6 +64,7 @@ public class SuperHeroesController {
 	@Operation(summary = "Crear un nuevo super heroe")
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Super heroe creado", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }) })
+	@RequestExecutionTime
 	@PostMapping
 	public ResponseEntity<SuperHeroesDto> createSuperHeroe(@RequestBody SuperHeroesDto newSuperHeroe) {
 
@@ -79,6 +83,7 @@ public class SuperHeroesController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Super heroe actualizado", content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = SuperHeroesDto.class)) }),
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
+	@RequestExecutionTime
 	@PutMapping("/{id}")
 	public ResponseEntity<SuperHeroesDto> updateSuperHeroe(@PathVariable Long id,
 			@RequestBody(required = true) SuperHeroesDto newSuperHeroe) {
@@ -97,6 +102,7 @@ public class SuperHeroesController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Super heroe eliminado", content = @Content),
 			@ApiResponse(responseCode = "404", description = "Super heroe no encontrado", content = @Content) })
+	@RequestExecutionTime
 	@DeleteMapping("/{id}")
 	public ResponseEntity<HttpStatus> updateSuperHeroe(@PathVariable Long id) {
 		superHeroesService.deleteSuperHeroe(id);
