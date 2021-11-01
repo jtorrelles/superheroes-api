@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
@@ -23,6 +26,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		this.superHeroesRepository = superHeroesRepository;
 	}
 
+	@Cacheable("superheroes")
 	@Override
 	public List<SuperHeroesDto> getAllSuperHeroes() {
 		List<SuperHeroesDto> result = new ArrayList<>();
@@ -34,6 +38,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return result;
 	}
 
+	@Cacheable("superheroes")
 	@Override
 	public SuperHeroesDto getSuperHeroeById(long superHeroeId) {
 		SuperHeroesDto result;
@@ -47,6 +52,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return result;
 	}
 
+	@Cacheable("superheroes")
 	@Override
 	public List<SuperHeroesDto> getSuperHeroesByName(String name) {
 		List<SuperHeroesDto> result = new ArrayList<>();
@@ -58,6 +64,42 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 			throw new SuperHeroesNoContentException();
 		}
 		return result;
+	}
+
+	@Override
+	public Long createSuperHeroe(SuperHeroesDto superHeroe) {
+
+		var newSuperHeroe = new SuperHeroe();
+		newSuperHeroe.setName(superHeroe.getName());
+		newSuperHeroe = superHeroesRepository.save(newSuperHeroe);
+
+		return newSuperHeroe.getId();
+	}
+
+	@Override
+	public SuperHeroesDto updateSuperHeroe(Long idSuperHeroe, SuperHeroesDto newSuperHeroe) {
+
+		var superHeroeDb = superHeroesRepository.findById(idSuperHeroe);
+		if (superHeroeDb.isPresent()) {
+			var superHeroe = superHeroeDb.get();
+			superHeroe.setName(newSuperHeroe.getName());
+
+			superHeroe = superHeroesRepository.save(superHeroe);
+			newSuperHeroe.setId(idSuperHeroe);
+		} else {
+			throw new SuperHeroesNotFoundException();
+		}
+		return newSuperHeroe;
+	}
+
+	@Override
+	public Boolean deleteSuperHeroe(Long idSuperHeroe) {
+		if (superHeroesRepository.existsById(idSuperHeroe)) {
+			superHeroesRepository.deleteById(idSuperHeroe);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
