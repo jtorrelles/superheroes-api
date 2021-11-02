@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SuperHeroesResponse implements Serializable {
+
+	private static final long serialVersionUID = -7027956828633968537L;
 	private List<SuperHeroesDto> superheroes;
 	private long totalItems;
 	private long totalPage;
