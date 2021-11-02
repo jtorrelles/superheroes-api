@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		this.superHeroesRepository = superHeroesRepository;
 	}
 
-	@Cacheable("superheroes")
+	@CacheEvict(value = "superheroes")
 	@Override
 	public SuperHeroesResponse getAllSuperHeroes(Pageable pageable) {
 		List<SuperHeroesDto> listOfSuperHeroes = new ArrayList<>();
@@ -39,14 +40,13 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 			throw new SuperHeroesNoContentException();
 		}
 		log.debug("se encontraron recursos en la bd");
-		response.getContent().stream().forEach(
-				superHeroe -> listOfSuperHeroes.add(new SuperHeroesDto(superHeroe.getId(), superHeroe.getName())));
+		response.getContent().stream().forEach(superHeroe -> listOfSuperHeroes.add(superHeroe.toSuperHeroeDto()));
 
 		return new SuperHeroesResponse(listOfSuperHeroes, response.getTotalElements(), response.getTotalPages(),
 				response.getNumber());
 	}
 
-	@Cacheable("superheroes")
+	@CachePut("superheroes")
 	@Override
 	public SuperHeroesDto getSuperHeroeById(String superHeroeId) {
 		SuperHeroesDto result;
@@ -55,8 +55,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		Optional<SuperHeroe> superHeroeDb = superHeroesRepository.findById(id);
 		if (superHeroeDb.isPresent()) {
 			log.debug("el recurso con id {} existe en la bd", superHeroeId);
-			var superHeroe = superHeroeDb.get();
-			result = new SuperHeroesDto(superHeroe.getId(), superHeroe.getName());
+			result = superHeroeDb.get().toSuperHeroeDto();
 		} else {
 			throw new SuperHeroesNotFoundException();
 		}
@@ -64,7 +63,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 		return result;
 	}
 
-	@Cacheable("superheroes")
+	@CachePut("superheroes")
 	@Override
 	public SuperHeroesResponse getSuperHeroesByName(String name, Pageable pageable) {
 		List<SuperHeroesDto> listOfSuperHeroes = new ArrayList<>();
@@ -75,8 +74,7 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 			throw new SuperHeroesNoContentException();
 		}
 		log.debug("se han obtenido recursos con los siguientes filtros name={} en la bd", name);
-		response.getContent().stream().forEach(
-				superHeroe -> listOfSuperHeroes.add(new SuperHeroesDto(superHeroe.getId(), superHeroe.getName())));
+		response.getContent().stream().forEach(superHeroe -> listOfSuperHeroes.add(superHeroe.toSuperHeroeDto()));
 
 		return new SuperHeroesResponse(listOfSuperHeroes, response.getTotalElements(), response.getTotalPages(),
 				response.getNumber());
@@ -85,10 +83,8 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 	@Override
 	public Long createSuperHeroe(SuperHeroesDto superHeroe) {
 
-		var newSuperHeroe = new SuperHeroe();
-		newSuperHeroe.setName(superHeroe.getName());
 		log.debug("creando el recurso {} en la bd", superHeroe.toString());
-		newSuperHeroe = superHeroesRepository.save(newSuperHeroe);
+		var newSuperHeroe = superHeroesRepository.save(superHeroe.toSuperHeroe());
 
 		return newSuperHeroe.getId();
 	}
@@ -104,8 +100,8 @@ public class SuperHeroesServiceImpl implements SuperHeroesService {
 			var superHeroe = superHeroeDb.get();
 			superHeroe.setName(newSuperHeroe.getName());
 
-			superHeroe = superHeroesRepository.save(superHeroe);
-			newSuperHeroe.setId(id);
+			var superHeroeResult = superHeroesRepository.save(superHeroe);
+			newSuperHeroe = superHeroeResult.toSuperHeroeDto();
 		} else {
 			log.debug("el recurso {} no existe", idSuperHeroe);
 			throw new SuperHeroesNotFoundException();
