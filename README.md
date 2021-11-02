@@ -16,7 +16,7 @@ java -jar target/app.jar
 Se debe tener previamente Docker instalado en el host y ejecutar los siguientes comandos:
 ```sh 
 docker build -t mindata-challenge .
-docker run -p 8080:8080 --name superheroe-local mindata-challenge
+docker run -p 8080:8080 --name superheroes-local mindata-challenge
 ```
 
 ## Seguridad
