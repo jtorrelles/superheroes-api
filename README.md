@@ -37,8 +37,13 @@ La api expone un swagger en la siguiente url:
 Se detalle aca el listado de los endpoints disponibles:
 
 > GET http://localhost:8080/superheroes
+
 > GET http://localhost:8080/superheroes?name=man
+
 > GET http://localhost:8080/superheroes/1
+
 > POST http://localhost:8080/superheroes
+
 > PUT http://localhost:8080/superheroes/1
+
 > DELETE http://localhost:8080/superheroes/1
