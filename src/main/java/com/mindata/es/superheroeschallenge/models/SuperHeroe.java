@@ -7,6 +7,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
+import com.mindata.es.superheroeschallenge.dto.SuperHeroesDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,4 +24,8 @@ public class SuperHeroe {
 	private Long id;
 	@NotBlank(message = "el nombre del super heroe es obligatorio")
 	private String name;
+	
+	public SuperHeroesDto toSuperHeroeDto() {
+		return new SuperHeroesDto(id, name);
+	}
 }

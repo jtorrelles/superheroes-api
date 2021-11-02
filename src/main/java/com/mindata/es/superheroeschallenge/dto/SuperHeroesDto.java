@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.mindata.es.superheroeschallenge.models.SuperHeroe;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,4 +21,8 @@ public class SuperHeroesDto implements Serializable {
 	private Long id;
 	@NotBlank(message = "el nombre del super heroe es obligatorio")
 	private String name;
+
+	public SuperHeroe toSuperHeroe() {
+		return new SuperHeroe(id, name);
+	}
 }
