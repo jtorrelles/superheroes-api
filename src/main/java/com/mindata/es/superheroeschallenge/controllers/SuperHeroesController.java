@@ -107,7 +107,7 @@ public class SuperHeroesController {
 
 		log.debug("recibida peticion para actualizar super heroe con id {}, con los siguientes datos {}", id,
 				newSuperHeroe.toString());
-		superHeroesService.updateSuperHeroe(id, newSuperHeroe);
+		newSuperHeroe = superHeroesService.updateSuperHeroe(id, newSuperHeroe);
 
 		String resourceLocation = new StringBuilder("/superheroes/").append(id).toString();
 		HttpHeaders headers = new HttpHeaders();
