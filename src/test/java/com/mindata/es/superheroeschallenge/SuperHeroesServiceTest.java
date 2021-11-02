@@ -122,12 +122,12 @@ public class SuperHeroesServiceTest {
 	public void updateSuperHeroe_returnUpdatedSuperHeroe() {
 
 		SuperHeroesDto input = new SuperHeroesDto();
-		input.setName("Green Latern");
+		input.setName("GreenLatern");
 
 		when(superHeroesRepository.findById(anyLong())).thenReturn(Optional.of(new SuperHeroe(4L, "Green Latern")));
-		when(superHeroesRepository.save(any(SuperHeroe.class))).thenReturn(any(SuperHeroe.class));
+		when(superHeroesRepository.save(any(SuperHeroe.class))).thenReturn(new SuperHeroe(4L, "GreenLatern"));
 
-		var updatedSuperHeroe = superHeroeService.updateSuperHeroe("1", input);
+		var updatedSuperHeroe = superHeroeService.updateSuperHeroe("4", input);
 		assertNotNull(updatedSuperHeroe);
 	}
 
